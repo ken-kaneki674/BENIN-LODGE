@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BENIN LODGE - Gestion des Réservations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Basculer le thème">
+            <i class="bi bi-sun" id="themeIcon"></i>
+            <span id="themeText">Clair</span>
+        </button>
+    </div>
+
+    <div class="app-container">
+        <!-- Modern Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <a href="#" class="logo">
+                    <i class="bi bi-building"></i>
+                    <span>BENIN LODGE</span>
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <a href="#" class="nav-link active" onclick="showReservations()">
+                        <i class="bi bi-list-check"></i>
+                        <span>Réservations</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" onclick="showDashboard()">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" onclick="showClients()">
+                        <i class="bi bi-people"></i>
+                        <span>Clients</span>
+                    </a>
+                </div>
+                <div class="nav-item position-relative">
+                    <a href="#" class="nav-link" onclick="showNotifications()">
+                        <i class="bi bi-bell"></i>
+                        <span>Notifications</span>
+                        <span class="notification-badge" id="notificationBadge">3</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" onclick="showSettings()">
+                        <i class="bi bi-gear"></i>
+                        <span>Paramètres</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Modern Header -->
+            <header class="page-header">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <h1 class="page-title">Gestion des Réservations</h1>
+                    <div class="header-actions">
+                        <div class="search-container">
+                            <i class="bi bi-search search-icon"></i>
+                            <input type="text" class="search-input" placeholder="Rechercher..." id="searchInput"
+                                aria-label="Rechercher une réservation">
+                        </div>
+                        <button class="btn btn-primary" onclick="showAddReservationModal()">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Nouvelle Réservation</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Statistics Cards -->
+            <section class="stats-section">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <div class="stat-value" id="totalReservations">24</div>
+                            <div class="stat-label">Total Réservations</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="stat-value" id="confirmedReservations">15</div>
+                            <div class="stat-label">Confirmées</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <div class="stat-value" id="pendingReservations">6</div>
+                            <div class="stat-label">En Attente</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon info">
+                                <i class="bi bi-currency-exchange"></i>
+                            </div>
+                            <div class="stat-value" id="totalRevenue">1.245.000 F</div>
+                            <div class="stat-label">Revenus</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="filters-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Filtres</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Statut</label>
+                                <select class="form-select" id="statusFilter" title="Filtrer par statut">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="confirmed">Confirmées</option>
+                                    <option value="pending">En attente</option>
+                                    <option value="cancelled">Annulées</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Hôtel</label>
+                                <select class="form-select" id="hotelFilter" title="Filtrer par hôtel">
+                                    <option value="">Tous les hôtels</option>
+                                    <option value="1">Golden Tulip Le Diplomate</option>
+                                    <option value="2">Azalaï Hôtel de la Plage</option>
+                                    <option value="3">Auberge de Grand-Popo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Date d'arrivée</label>
+                                <input type="date" class="form-control" id="startDateFilter" title="Date de début">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Date de départ</label>
+                                <input type="date" class="form-control" id="endDateFilter" title="Date de fin">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col text-end">
+                                <button id="exportBtn" class="btn btn-secondary me-2" onclick="exportData()">
+                                    <i class="bi bi-download"></i>
+                                    <span>Exporter</span>
+                                </button>
+                                <button class="btn btn-primary" onclick="applyFilters()">
+                                    <i class="bi bi-funnel"></i>
+                                    <span>Appliquer les filtres</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reservations Table -->
+            <section class="table-section">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Contact</th>
+                                <th>Hôtel</th>
+                                <th>Type de chambre</th>
+                                <th>Dates de séjour</th>
+                                <th>Nuits</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservationsTableBody">
+                            <tr class="fade-in">
+                                <td>RES-001</td>
+                                <td>Koffi Mensah</td>
+                                <td>koffi.m@example.com<br>+229 12 34 56 78</td>
+                                <td><span class="hotel-badge">Golden Tulip</span></td>
+                                <td>Suite Junior</td>
+                                <td>12/05/2023 - 15/05/2023</td>
+                                <td>3</td>
+                                <td>165.000 F</td>
+                                <td><span class="status-badge confirmed">Confirmée</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewReservation('RES-001')"
+                                        aria-label="Voir la réservation">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="cancelReservation('RES-001')"
+                                        aria-label="Annuler la réservation">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="fade-in">
+                                <td>RES-002</td>
+                                <td>Aïcha Bello</td>
+                                <td>aicha.b@example.com<br>+229 98 76 54 32</td>
+                                <td><span class="hotel-badge">Azalaï Plage</span></td>
+                                <td>Chambre Supérieure</td>
+                                <td>18/05/2023 - 20/05/2023</td>
+                                <td>2</td>
+                                <td>70.000 F</td>
+                                <td><span class="status-badge pending">En attente</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewReservation('RES-002')"
+                                        aria-label="Voir la réservation">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="confirmReservation('RES-002')"
+                                        aria-label="Confirmer la réservation">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="cancelReservation('RES-002')"
+                                        aria-label="Annuler la réservation">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="fade-in">
+                                <td>RES-003</td>
+                                <td>Thomas Johnson</td>
+                                <td>thomas.j@example.com<br>+229 55 66 77 88</td>
+                                <td><span class="hotel-badge">Auberge Grand-Popo</span></td>
+                                <td>Chambre Standard</td>
+                                <td>22/05/2023 - 25/05/2023</td>
+                                <td>3</td>
+                                <td>75.000 F</td>
+                                <td><span class="status-badge cancelled">Annulée</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewReservation('RES-003')"
+                                        aria-label="Voir la réservation">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="fade-in">
+                                <td>RES-004</td>
+                                <td>Sophie Kouagou</td>
+                                <td>sophie.k@example.com<br>+229 11 22 33 44</td>
+                                <td><span class="hotel-badge">Golden Tulip</span></td>
+                                <td>Suite Présidentielle</td>
+                                <td>01/06/2023 - 05/06/2023</td>
+                                <td>4</td>
+                                <td>340.000 F</td>
+                                <td><span class="status-badge confirmed">Confirmée</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewReservation('RES-004')"
+                                        aria-label="Voir la réservation">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="cancelReservation('RES-004')"
+                                        aria-label="Annuler la réservation">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="fade-in">
+                                <td>RES-005</td>
+                                <td>Marc Adisso</td>
+                                <td>marc.a@example.com<br>+229 99 88 77 66</td>
+                                <td><span class="hotel-badge">Azalaï Plage</span></td>
+                                <td>Chambre Standard</td>
+                                <td>10/06/2023 - 12/06/2023</td>
+                                <td>2</td>
+                                <td>50.000 F</td>
+                                <td><span class="status-badge pending">En attente</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewReservation('RES-005')"
+                                        aria-label="Voir la réservation">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="confirmReservation('RES-005')"
+                                        aria-label="Confirmer la réservation">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="cancelReservation('RES-005')"
+                                        aria-label="Annuler la réservation">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal pour nouvelle réservation -->
+    <div class="modal fade" id="addReservationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nouvelle Réservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reservationForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="clientName" class="form-label">Nom du client</label>
+                                <input type="text" class="form-control" id="clientName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clientEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="clientEmail" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="clientPhone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" id="clientPhone" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hotel" class="form-label">Hôtel</label>
+                                <select class="form-select" id="hotel" required>
+                                    <option value="">Sélectionner un hôtel</option>
+                                    <option value="1">Golden Tulip Le Diplomate - Cotonou (4 étoiles)</option>
+                                    <option value="2">Azalaï Hôtel de la Plage - Grand-Popo (3 étoiles)</option>
+                                    <option value="3">Auberge de Grand-Popo - Grand-Popo (2 étoiles)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="roomType" class="form-label">Type de chambre</label>
+                                <select class="form-select" id="roomType" required>
+                                    <option value="">Sélectionner un type</option>
+                                    <option value="1">Chambre Standard - 25,000 FCFA/nuit</option>
+                                    <option value="2">Chambre Supérieure - 35,000 FCFA/nuit</option>
+                                    <option value="3">Suite Junior - 55,000 FCFA/nuit</option>
+                                    <option value="4">Suite Présidentielle - 85,000 FCFA/nuit</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="guests" class="form-label">Nombre de personnes</label>
+                                <input type="number" class="form-control" id="guests" min="1" max="10" value="1"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="checkIn" class="form-label">Date d'arrivée</label>
+                                <input type="date" class="form-control" id="checkIn" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="checkOut" class="form-label">Date de départ</label>
+                                <input type="date" class="form-control" id="checkOut" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Détails du séjour</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <p class="mb-0">Nombre de nuits: <span id="nightsCount">0</span></p>
+                                                <p class="mb-0">Prix par nuit: <span id="pricePerNight">0</span> FCFA
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <h5>Total: <span id="totalAmount">0</span> FCFA</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="saveReservation()">Enregistrer la
+                        réservation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour détails réservation -->
+    <div class="modal fade" id="viewReservationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Détails de la Réservation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="reservationDetails">
+                    <!-- Contenu dynamique -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-warning" onclick="editReservation()">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Notifications -->
+    <div class="modal fade" id="notificationsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notifications</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group" id="notificationsList">
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Nouvelle réservation en attente</h6>
+                                <small>Il y a 5 minutes</small>
+                            </div>
+                            <p class="mb-1">Réservation RES-006 en attente de confirmation</p>
+                            <button class="btn btn-sm btn-primary">Voir</button>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Paiement reçu</h6>
+                                <small>Il y a 1 heure</small>
+                            </div>
+                            <p class="mb-1">Paiement confirmé pour la réservation RES-004</p>
+                            <button class="btn btn-sm btn-success">Voir</button>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Annulation</h6>
+                                <small>Il y a 2 heures</small>
+                            </div>
+                            <p class="mb-1">Le client a annulé la réservation RES-003</p>
+                            <button class="btn btn-sm btn-danger">Voir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
