@@ -1053,8 +1053,40 @@ body {
    ========================================= */
 /* Mobile Overlay */
 .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
+}
+
+.mobile-overlay.visible {
+    opacity: 1;
+}
+
+/* Mobile menu button (visible uniquement sous 1024px) */
+.mobile-menu-toggle {
+    display: none;
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 1024px) {
+    .mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* Surlignage des résultats de recherche */
+.search-highlight {
+    background: rgba(245, 158, 11, 0.35);
+    color: inherit;
+    padding: 0 0.1em;
+    border-radius: 2px;
 }
 
 /* Scroll indicators for tables */
@@ -1083,7 +1115,7 @@ body {
 }
 
 /* Specific Mobile Overrides */
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
     .sidebar {
         transition: transform 0.3s ease;
     }
@@ -1108,7 +1140,7 @@ body {
         width: 100%;
     }
 
-    .btn {
+    .header-actions .btn {
         width: 100%;
         justify-content: center;
     }
